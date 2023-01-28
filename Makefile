@@ -1,7 +1,7 @@
 all: static server
 
 static:
-	trunk build index.html
+	trunk build index.html --release
 
 server:
-	cargo run --features=ssr --bin ssr_server -- --dir dist
+	cargo run --features=ssr --release --bin ssr_server -- --dir dist

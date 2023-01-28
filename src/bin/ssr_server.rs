@@ -19,9 +19,6 @@ use tower_http::services::ServeDir;
 use yew::platform::Runtime;
 use web::{ServerApp, ServerAppProps};
 
-// We use jemalloc as it produces better performance.
-#[global_allocator]
-static GLOBAL: jemallocator::Jemalloc = jemallocator::Jemalloc;
 
 /// A basic example
 #[derive(Parser, Debug)]
@@ -85,11 +82,29 @@ async fn main() {
         .await
         .expect("failed to read index.html");
 
-    let (index_html_before, index_html_after) = index_html_s.split_once("<body>").unwrap();
-    let mut index_html_before = index_html_before.to_owned();
-    index_html_before.push_str("<body>");
+    // Split the index.html into two parts: before and after the <body> tag.
+    // Note that the <body> tag has some attributes associated with it.
+    // The <body> tag needs to be in the "before" part.
+    let (index_html_before, index_html_after) = {
+        // Find the <body ...> tag.
+        let body_start = index_html_s
+            .find("<body")
+            .expect("failed to find <body> tag in index.html");
+        // Find the end of the <body ...> tag.
+        // This is the position of the '>' character relative to the start of the <body ...> tag --
+        // aka the length of the <body ...> tag.
+        let body_tag_len = index_html_s
+            .split_at(body_start).1
+            .find('>')
+            .expect("failed to find <body> tag in index.html");
+        // The "before" part is the part until the end of the <body ...> tag,
+        // including the '>' character.
+        // For this, we split at (the position of the "<body") + (the length of the "<body ...> tag").
+        // The "after" part is the rest of the string.
+        let (before, after) = index_html_s.split_at(body_start + body_tag_len + 1);
 
-    let index_html_after = index_html_after.to_owned();
+        (before.to_string(), after.to_string())
+    };
 
     let handle_error = |e| async move {
         (

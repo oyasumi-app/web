@@ -75,7 +75,7 @@ pub enum Route {
 
 
 fn switch(route: Route) -> Html {
-    match route {
+    let inner = match route {
         Route::Index => html! {
             <components::index::Index />
         },
@@ -84,5 +84,11 @@ fn switch(route: Route) -> Html {
                 <h1>{"404"}</h1>
             </div>
         },
+    };
+
+    html! {
+        <div class="container">
+            {inner}
+        </div>
     }
 }

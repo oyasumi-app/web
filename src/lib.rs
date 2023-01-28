@@ -1,6 +1,11 @@
+use std::collections::HashMap;
+
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 use yew::prelude::*;
+use yew_router::{Router, Switch, history::{AnyHistory, MemoryHistory, History}, Routable, BrowserRouter};
+
+mod components;
 
 #[derive(Serialize, Deserialize)]
 struct UuidResponse {
@@ -25,13 +30,59 @@ fn Content() -> HtmlResult {
     })
 }
 
+#[derive(Properties, Clone, PartialEq, Debug)]
+pub struct ServerAppProps {
+    pub url: String,
+    pub queries: HashMap<String, String>,
+}
+
 #[function_component]
-pub fn App() -> Html {
-    let fallback = html! {<div>{"Loading..."}</div>};
+pub fn ServerApp(props: &ServerAppProps) -> Html {
+    let history = AnyHistory::from(MemoryHistory::new());
+    history
+        .push_with_query(&*props.url, &props.queries)
+        .unwrap();
 
     html! {
-        <Suspense {fallback}>
-            <Content />
-        </Suspense>
+        <Router history={history}>
+            <main>
+                <Switch<Route> render={switch} />
+            </main>
+        </Router>
+    }
+}
+
+#[function_component]
+pub fn App() -> Html {
+    html! {
+        <BrowserRouter>
+            <main>
+                <Switch<Route> render={switch} />
+            </main>
+        </BrowserRouter>
+    }
+}
+
+
+#[derive(Routable, Debug, Clone, PartialEq)]
+pub enum Route {
+    #[at("/")]
+    Index,
+    #[not_found]
+    #[at("/404")]
+    NotFound,
+}
+
+
+fn switch(route: Route) -> Html {
+    match route {
+        Route::Index => html! {
+            <components::index::Index />
+        },
+        Route::NotFound => html! {
+            <div>
+                <h1>{"404"}</h1>
+            </div>
+        },
     }
 }

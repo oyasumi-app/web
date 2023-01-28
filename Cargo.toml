@@ -20,6 +20,7 @@ uuid = { version = "1.0.0", features = ["serde"] }
 futures = "0.3"
 bytes = "1.0"
 yew-router = "0.17.0"
+branding_text = { path = "../branding/branding_text" }
 
 [target.'cfg(target_arch = "wasm32")'.dependencies]
 wasm-bindgen-futures = "0.4"

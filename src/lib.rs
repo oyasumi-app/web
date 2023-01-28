@@ -5,6 +5,7 @@ use uuid::Uuid;
 use yew::prelude::*;
 use yew_router::{Router, Switch, history::{AnyHistory, MemoryHistory, History}, Routable, BrowserRouter};
 
+mod routes;
 mod components;
 
 #[derive(Serialize, Deserialize)]
@@ -77,7 +78,7 @@ pub enum Route {
 fn switch(route: Route) -> Html {
     let inner = match route {
         Route::Index => html! {
-            <components::index::Index />
+            <routes::index::Index />
         },
         Route::NotFound => html! {
             <div>
@@ -87,8 +88,11 @@ fn switch(route: Route) -> Html {
     };
 
     html! {
-        <div class="container">
-            {inner}
-        </div>
+        <>
+            <components::MainNavbar />
+            <div class="container">
+                {inner}
+            </div>
+        </>
     }
 }
